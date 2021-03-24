@@ -1,0 +1,397 @@
+<?php
+	session_start();
+	require_once('../model/userModel.php');
+
+	if(isset($_POST['signup'])){
+
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+		$repass = $_POST['repass'];
+		$email = $_POST['email'];
+
+		if($username == "" || $email == "" || $password == "" || $repass == ""){
+			echo "null submission...";
+		}else{
+
+			if($password == $repass){
+
+				$user = [
+							'username' => $username,
+							'password' => $password,
+							'email' => $email,
+							'type' => 'user'
+						];
+
+				$status = insertUser($user);
+
+				if($status){
+					header('location: ../view/home.php');
+				}else{
+					echo "error";
+				}
+
+			}else{
+				echo "password & confirm password mismatch..";
+			}
+		}
+
+	}
+?> 
+
+<?php
+	session_start();
+	require_once('../model/userModel.php');
+
+	if(isset($_POST['signup'])){
+
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+		$email = $_POST['email'];
+
+		if($username == "" || $email == "" || $password == ""){
+			echo "null submission...";
+		}else{
+
+
+
+				$user = [
+							'id'=>'',
+							'username' => $username,
+							'password' => $password,
+							'email' => $email,
+							'type' => 'user'
+						];
+
+				$status = updateUser($user);
+
+				if($status){
+					header('location: ../view/home.php');
+				}else{
+					echo "error";
+				}
+
+
+		}
+
+	}
+?> 
+
+<?php
+	session_start();
+	$connect=mysqli_connect("localhost","root",'',"webtech");
+	require_once('../model/userModel.php');
+
+	if(isset($_POST['submit'])){
+
+@@ -10,21 +10,18 @@
+		if($username == "" || $password == ""){
+			echo "null submission...";
+		}else{
+			$user = $_SESSION['current_user'];
+			$sql = "SELECT * FROM user WHERE username='$username' AND password='$password'";
+			$result = mysqli_query($connect, $sql);
+ 			$row = mysqli_fetch_assoc($result);
+			if(count($row) >0)
+				{
+
+			$status = validateUser($username, $password);
+			if($status){
+				$_SESSION['flag'] = true;
+				$_SESSION['username'] = $username;
+
+				header('location: ../view/home.php');
+
+			}else{
+				echo "invalid user";
+			}
+		}
+
+	}
+	mysqli_close($connect)
+?>
+
+
+?> 
+
+<?php
+	session_start();
+	$connect=mysqli_connect("localhost","root",'',"webtech");
+	require_once('../model/userModel.php');
+
+	if(isset($_POST['signup'])){
+
+		$username = $_POST['username'];
+@@ -12,24 +13,27 @@
+			echo "null submission...";
+		}else{
+
+			$sql = "insert into user (username, password, email) values ('$username', '$password', '$email')";
+    	if(mysqli_query($connect, $sql)){
+			if($password == $repass){
+
+				$user = [	
+							'username'=>$username, 
+							'password'=>$password, 
+							'email'=> $email
+				$user = [
+							'username' => $username,
+							'password' => $password,
+							'email' => $email,
+							'type' => 'user'
+						];
+
+
+				$_SESSION['current_user'] = $user;
+				$status = insertUser($user);
+
+				if($status){
+					header('location: ../view/login.html');
+				}else{
+					echo "error";
+				}
+
+				header('location: ../view/login.html');
+			}else{
+				echo "password & confirm password mismatch..";
+			}
+		}
+
+	}
+	mysqli_close($connect)
+?> 
+
+<?php
+
+	$dbuser = 'root';
+	$dbpass = '';
+	$host 	= 'localhost';
+	$dbname	= 'webtech';
+
+
+	function getConnection(){
+
+		global $dbname, $dbpass, $dbuser, $host;
+		$conn = mysqli_connect($host, $dbuser, $dbpass, $dbname);
+		return $conn;
+	}
+
+?> 
+
+<?php
+
+	require_once('db.php');
+
+	function validateUser($username, $password){
+
+		$conn = getConnection();
+
+		$sql = "select * from user where username='{$username}' and password='{$password}'";
+		$result = mysqli_query($conn, $sql);
+		$row = mysqli_fetch_assoc($result);
+
+		if(count($row) > 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function getUserById($id){
+
+		$conn = getConnection();
+
+		$sql = "select * from user where id='{$id}'";
+		$result = mysqli_query($conn, $sql);
+		$row = mysqli_fetch_assoc($result);
+
+		return $row;
+	}
+
+	function getAllUser(){
+		$conn = getConnection();
+		$sql = "select * from user";
+		$result = mysqli_query($conn, $sql);
+
+		$user =[];
+
+		while($row = mysqli_fetch_assoc($result)){
+			array_push($user, $row); 
+			global $user;
+		}
+
+		return $user;
+
+	}
+
+	function insertUser($user){
+
+		$conn = getConnection();
+		$sql = "insert into user values('', '{$user['username']}', '{$user['password']}', '{$user['email']}', '{$user['type']}')";
+
+		if(mysqli_query($conn, $sql)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function updateUser($user){
+
+		$conn = getConnection();
+		$sql = "update user set id= '', username='{$user['username']}', password='{$user['password']}', email='{$user['email']}', type='user'} ";
+
+		if(mysqli_query($conn, $sql)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function deleteUser($id){
+		$conn = getConnection();
+		$sql = "delete from user where id={$id}";
+
+		if(mysqli_query($conn, $sql)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+?> 
+
+	</div>
+
+	<div id="main_content">
+		<form method="post" action="">
+		<form method="post" action="../controller/createUser.php">
+			<fieldset>
+				<legend>Create New</legend>
+				<table>
+
+<?php
+	$usernam = intval($_GET['username']);
+	$title= "Edit Page";
+	include('header.php');
+
+	$conn = mysqli_connect('localhost', 'root', '', 'webtech');
+	$sql = "select * from user where username={$usernam}";
+	$result = mysqli_query($conn, $sql);
+	$row=mysqli_fetch_array($result);
+	print_r($row);
+	/*$username= $row['username'];
+	$password = $row['password']; 
+	$email= $row['email'];*/
+
+
+	//echo $_GET['id'];
+	//echo $_GET['email'];
+?>
+@@ -17,22 +28,22 @@
+	</div>
+
+	<div id="main_content">
+		<form method="post" action="">
+		<form method="post" action="../controller/editUser.php">
+			<fieldset>
+				<legend>Create New</legend>
+				<table>
+					<tr>
+						<td>Username</td>
+						<td><input type="text" name="username" value="alamin"> </td>
+						<td><input type="text" name="username" value="<?php echo $row['username']?>"> </td>
+					</tr>
+					<tr>
+						<td>Password</td>
+						<td><input type="password" name="password" value="123"> </td>
+						<td><input type="password" name="password" value="<?php echo $row['password']?>"> </td>
+					</tr>
+
+					<tr>
+						<td>Email</td>
+						<td><input type="email" name="email" value="alamin@aiub.edu"> </td>
+						<td><input type="email" name="email" value="<?php echo $row['email']?>"> </td>
+					</tr>
+					<tr>
+						<td></td>
+@@ -45,4 +56,11 @@
+		</form>
+	</div>
+
+	<?php include('footer.php'); ?> 
+	<?php include('footer.php');
+
+
+
+
+
+
+?> 
+
+?>
+
+	<div id="page_title">
+		<h1>Welcome home, <?php echo $_SESSION['current_user']['username'];?></h1>
+		<h1>Welcome home, <?php echo $_SESSION['username'];?></h1>
+	</div>
+
+	<div id='nav_bar'>
+
+	<div id="main_content">
+		<table border="1">
+			<tr>
+
+				<td>ID</td>
+				<td>Username</td>
+				<td>Password</td>
+				<td>EMAIL</td>
+				<td>Email</td>
+			</tr>
+			<?php 
+				$connect=mysqli_connect("localhost","root",'',"webtech");
+				$sql = "select * from users";
+			    $result = mysqli_query($connect, $sql);
+				while($row = mysqli_fetch_assoc($result)){
+
+				        echo "<tr>
+				        <td>".$row['username']."</td>
+				        <td>".$row['password']."</td>
+				        <td>".$row['email']."</td>
+				       
+				        <td><a href=updateUsers.php?msg=".$row['username'].">Edit</a></td>
+				        <td><a href=../controller/deleteUsers.php?msg=".$row['username'].">Delete</a></td>
+				        </tr>";
+
+				    }
+			 ?>
+
+
+				<?php
+				$conn = mysqli_connect('localhost', 'root', '', 'webtech');
+				$sql = "select * from user";
+				$result = mysqli_query($conn, $sql);
+				while($row=mysqli_fetch_array($result))
+				{
+						echo "<tr>";
+					 	echo "<td>"; echo $row["id"]; echo "</td>";
+					    echo "<td>"; echo $row["username"]; echo "</td>";
+					    echo "<td>"; echo $row["password"]; echo "</td>";
+					    echo "<td>"; echo $row["email"]; echo "</td>";
+					    echo "<td>"; ?>
+
+					    <td><a href=edit.php?username="<?php echo $row['username']?>">Edit</a></td>
+				        <td><a href=../controller/deleteUsers.php?msg="<?php $row['username']?>">Delete</a></td>
+
+                		<?php echo "</td>";
+   						 echo "</tr>";
+
+				}
+				?>
+
+
+
+
+		</table>
+	</div>
+
+<?php include('footer.php'); ?> 
