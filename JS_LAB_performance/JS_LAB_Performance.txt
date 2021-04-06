@@ -1,0 +1,20 @@
+<form action="../checking/signCheck.php" onsubmit="return validate();" method="post" enctype="multipart/form-data"
+Shakil sent Today at 11:53 AM
+function validate() {
+    const name= document.getElementById('name').value;
+    if (name=="") {
+        document.getElementById('msg').innerHTML="Name cannot be empty";
+        return false;
+    } else {
+        if(name.length<2){
+            document.getElementById('msg').innerHTML="Name cannot be empty";
+            return false;
+        }
+        else{
+            
+            return true;
+        }
+    }
+    
+   
+}
